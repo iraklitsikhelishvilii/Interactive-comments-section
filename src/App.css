@@ -36,6 +36,9 @@ input{
 .reply_div{
   margin-top: 20px;
 }
-.opacity_div{
-  /* opacity: 0.5; */
+ /* .opacity_div{
+   opacity: 0.5; 
+}  */
+.edit_box{
+  margin-bottom: 20px;
 }

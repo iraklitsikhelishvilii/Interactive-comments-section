@@ -11,6 +11,7 @@ function Main() {
   const [savecomments, setsavecomments] = useState([]);
   const [deleteclick, setdeleteclick] = useState(false);
   const [deleteindex, setdeleteindex] = useState(null);
+  
   const TakeValue = (e) => {
     setcomment(e.target.value);
   };
@@ -24,7 +25,7 @@ function Main() {
           comment: comment,
           likes: 0,
           reply: false,
-          replytxt: "",
+          replytxt: [],
           replied: false,
         },
       ]);
@@ -45,18 +46,29 @@ function Main() {
     setdeleteclick(!deleteclick);
   };
 
-  const PlusFunc = (key) => {
-    const updatedlikes = [...savecomments];
-    updatedlikes[key].likes += 1;
-    setsavecomments(updatedlikes);
+  const PlusFunc = (commentIndex, replyIndex = null) => {
+    const updatedComments = [...savecomments];
+
+    if (replyIndex === null) {
+      updatedComments[commentIndex].likes += 1;
+    } else {
+      updatedComments[commentIndex].replytxt[replyIndex].likes += 1;
+    }
+    setsavecomments(updatedComments);
   };
 
-  const MinusFunc = (key) => {
-    const updatedlikes = [...savecomments];
-    if (updatedlikes[key].likes > 0) {
-      updatedlikes[key].likes -= 1;
-      setsavecomments(updatedlikes);
+  const MinusFunc = (commentIndex, replyIndex = null) => {
+    const updatedComments = [...savecomments];
+    if (replyIndex === null) {
+      if (updatedComments[commentIndex].likes > 0) {
+        updatedComments[commentIndex].likes -= 1;
+      }
+    } else {
+      if (updatedComments[commentIndex].replytxt[replyIndex].likes > 0) {
+        updatedComments[commentIndex].replytxt[replyIndex].likes -= 1;
+      }
     }
+    setsavecomments(updatedComments);
   };
 
   const ReplyFunc = (key) => {
@@ -73,21 +85,22 @@ function Main() {
     e.preventDefault();
     if (replyvalue.trim() !== "") {
       const updatedComments = [...savecomments];
-      updatedComments[key] = {
-        ...updatedComments[key],
-        reply: false,
-        replied: true,
-        replytxt: replyvalue,
-      };
+      updatedComments[key].replytxt.push({
+        text: replyvalue,
+        likes: 0,
+      });
+      updatedComments[key].reply = false;
       setsavecomments(updatedComments);
       setreplyvalue("");
     }
   };
-  const DeleteReply = (key) => {
+
+  const DeleteReply = (key, replyindex) => {
     const updatedComments = [...savecomments];
-    updatedComments[key].replied = false;
+    updatedComments[key].replytxt.splice(replyindex, 1);
     setsavecomments(updatedComments);
   };
+
   return (
     <>
       <div className=" relative gap-[24px] flex flex-col">
@@ -177,61 +190,65 @@ function Main() {
                   </button>
                 </form>
               )}
-              {comment.replied && (
-                <div className=" flex bg-[#fff] w-full max-w-[640px] self-end gap-[24px] items-start comments_div reply_div">
-                  <div className=" gap-[20px] justify-center items-center flex flex-col w-[48px] h-[100px] bg-[#F5F6FA] rounded-[10px]">
-                    <button
-                      onClick={() => PlusFunc(key)}
-                      className="cursor-pointer"
-                    >
-                      <img src={plus_img} alt="" />
-                    </button>
-                    <p className=" text-[#5357B6] text=[16px] font-[400]">
-                      {comment.likes}
-                    </p>
-                    <button
-                      onClick={() => MinusFunc(key)}
-                      className="cursor-pointer"
-                    >
-                      <img src={minus_img} alt="" />
-                    </button>
-                  </div>
-                  <div className=" w-full">
-                    <div className="  flex justify-between items-center">
-                      <div className=" flex gap-[16px]">
-                        <img
-                          className=" w-[32px] h-[32px]"
-                          src={profile_img}
-                          alt=""
-                        />
-                        <p className=" text-[#334253] text-[16px] font-[400]">
-                          amyrobson
-                        </p>
-                        <p className=" text-[#67727E] text-[16px] font-[400] ">
-                          1 month ago
-                        </p>
-                      </div>
-                      <div className="flex gap-[24px]">
-                        <button
-                          onClick={() => DeleteReply(key)}
-                          className=" flex justify-center items-center gap-[8px] text-[#ED6368] text-[16px] font-[400] cursor-pointer"
-                        >
-                          <img src={remove_img} alt="" />
-                          Delete
-                        </button>
-                        <button className="flex justify-center items-center gap-[8px] text-[#5357B6] text-[16px] font-[400px] cursor-pointer">
-                          <img src={edit_img} alt="" /> Edit
-                        </button>
-                      </div>
-                    </div>
-                    <div className=" overflow-hidden max-w-[600px] h-auto">
-                      <p className=" text-[#67727E] text-[16px] font-[400] leading-[24px] comments_p">
-                        {comment.replytxt}
+              {comment.replytxt.length > 0 &&
+                comment.replytxt.map((reply, replyindex) => (
+                  <div
+                    key={replyindex}
+                    className=" flex bg-[#fff] w-full max-w-[640px] self-end gap-[24px] items-start comments_div reply_div"
+                  >
+                    <div className=" gap-[20px] justify-center items-center flex flex-col w-[48px] h-[100px] bg-[#F5F6FA] rounded-[10px]">
+                      <button
+                        onClick={() => PlusFunc(key, replyindex)}
+                        className="cursor-pointer"
+                      >
+                        <img src={plus_img} alt="" />
+                      </button>
+                      <p className=" text-[#5357B6] text=[16px] font-[400]">
+                        {reply.likes}
                       </p>
+                      <button
+                        onClick={() => MinusFunc(key, replyindex)}
+                        className="cursor-pointer"
+                      >
+                        <img src={minus_img} alt="" />
+                      </button>
+                    </div>
+                    <div className=" w-full">
+                      <div className="  flex justify-between items-center">
+                        <div className=" flex gap-[16px]">
+                          <img
+                            className=" w-[32px] h-[32px]"
+                            src={profile_img}
+                            alt=""
+                          />
+                          <p className=" text-[#334253] text-[16px] font-[400]">
+                            amyrobson
+                          </p>
+                          <p className=" text-[#67727E] text-[16px] font-[400] ">
+                            1 month ago
+                          </p>
+                        </div>
+                        <div className="flex gap-[24px]">
+                          <button
+                            onClick={() => DeleteReply(key, replyindex)}
+                            className=" flex justify-center items-center gap-[8px] text-[#ED6368] text-[16px] font-[400] cursor-pointer"
+                          >
+                            <img src={remove_img} alt="" />
+                            Delete
+                          </button>
+                          <button className="flex justify-center items-center gap-[8px] text-[#5357B6] text-[16px] font-[400px] cursor-pointer">
+                            <img src={edit_img} alt="" /> Edit
+                          </button>
+                        </div>
+                      </div>
+                      <div className=" overflow-hidden max-w-[600px] h-auto">
+                        <p className=" text-[#67727E] text-[16px] font-[400] leading-[24px] comments_p">
+                          {reply.text}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
+                ))}
             </div>
           ))}
         </div>
