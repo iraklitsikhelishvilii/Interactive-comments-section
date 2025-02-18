@@ -5,6 +5,10 @@ import edit_img from "../../../assets/images/pencil.svg";
 import reply_img from "../../../assets/images/Reply(1).svg";
 import plus_img from "../../../assets/images/+.svg";
 import minus_img from "../../../assets/images/-.svg";
+import Likes_div from "../../__molecules/likes_div/Likes_div";
+import Delete from "../../__molecules/delete_div/Delete_div";
+import Form from "../../__molecules/form/Form";
+import Buttons_div from "../../__molecules/buttons_div/Buttons_div";
 function Main() {
   const [comment, setcomment] = useState("");
   const [replyvalue, setreplyvalue] = useState("");
@@ -159,23 +163,13 @@ function Main() {
           {savecomments.map((comment, key) => (
             <div className=" w-full flex flex-col" key={key}>
               <div className=" flex bg-[#fff] w-full max-w-[730px] gap-[24px] items-start !p-[24px]">
-                <div className=" gap-[20px] justify-center items-center flex flex-col min-w-[48px] h-[100px] bg-[#F5F6FA] rounded-[10px]">
-                  <button
-                    onClick={() => PlusFunc(key)}
-                    className="cursor-pointer"
-                  >
-                    <img src={plus_img} alt="" />
-                  </button>
-                  <p className=" text-[#5357B6] text=[16px] font-[400]">
-                    {comment.likes}
-                  </p>
-                  <button
-                    onClick={() => MinusFunc(key)}
-                    className="cursor-pointer"
-                  >
-                    <img src={minus_img} alt="" />
-                  </button>
-                </div>
+                <Likes_div
+                  func={() => PlusFunc(key)}
+                  plus_img={plus_img}
+                  minus_img={minus_img}
+                  MinusFunc={() => MinusFunc(key)}
+                  comment={comment}
+                />
                 <div className=" w-full">
                   <div className="  flex justify-between items-center">
                     <div className=" flex gap-[16px]">
@@ -191,32 +185,15 @@ function Main() {
                         1 month ago
                       </p>
                     </div>
-                    <div className="flex gap-[24px]">
-                      {key != 0 && (
-                        <button
-                          className=" flex justify-center items-center gap-[8px] text-[#ED6368] text-[16px] font-[400] cursor-pointer"
-                          onClick={() => ClickOnDelete(key)}
-                        >
-                          <img src={remove_img} alt="" />
-                          Delete
-                        </button>
-                      )}
-                      {key != 0 && (
-                        <button
-                          onClick={() => EditClick(key)}
-                          className="flex justify-center items-center gap-[8px] text-[#5357B6] text-[16px] font-[400px] cursor-pointer"
-                        >
-                          <img src={edit_img} alt="" /> Edit
-                        </button>
-                      )}
-                      <button
-                        onClick={() => ReplyFunc(key)}
-                        className="flex justify-center items-center gap-[8px] text-[#5357B6] text-[16px] font-[400px] cursor-pointer"
-                      >
-                        <img src={reply_img} alt="" />
-                        Reply
-                      </button>
-                    </div>
+                    <Buttons_div
+                      index={key}
+                      clickfunc={() => ClickOnDelete(key)}
+                      remove_img={remove_img}
+                      editfunc={() => EditClick(key)}
+                      edit_img={edit_img}
+                      reply_img={reply_img}
+                      replyfunc={() => ReplyFunc(key)}
+                    />
                   </div>
                   {comment.edit ? (
                     <div className="!mt-[20px] flex flex-col items-end w-[530px] ">
@@ -242,27 +219,11 @@ function Main() {
                 </div>
               </div>
               {comment.reply && (
-                <form
-                  onClick={(e) => SaveReplyValue(e, key)}
-                  className="bg-[#FFF] rounded-[8px] !p-[24px] flex items-start gap-[17px]  !mt-[20px]"
-                  action=""
-                >
-                  <img src={profile_img} alt="" />
-                  <textarea
-                    onChange={TakeReplyValue}
-                    className=" !px-[24px] !py-[12px]  outline-none w-[506px] h-[96px] flex border-solid border-[1px] border-[#E9EBF0] "
-                    placeholder="Add a reply..."
-                    type="text"
-                  />
-                  <button
-                    type="submit"
-                    className=" w-[104px] h-[48px] bg-[#5357B6] rounded-[8px]"
-                  >
-                    <p className="text-[#FFF] text-[16px] font-[400] cursor-pointer ">
-                      SEND
-                    </p>
-                  </button>
-                </form>
+                <Form
+                  SaveCommentsFunc={(e) => SaveReplyValue(e, key)}
+                  profile_img={profile_img}
+                  TakeValue={TakeReplyValue}
+                />
               )}
               {comment.replytxt.length > 0 &&
                 comment.replytxt.map((reply, replyindex) => (
@@ -270,23 +231,14 @@ function Main() {
                     key={replyindex}
                     className=" flex bg-[#fff] w-full max-w-[640px] self-end gap-[24px] items-start !p-[24px] !mt-[20px]"
                   >
-                    <div className=" gap-[20px] justify-center items-center flex flex-col min-w-[48px] h-[100px] bg-[#F5F6FA] rounded-[10px]">
-                      <button
-                        onClick={() => PlusFunc(key, replyindex)}
-                        className="cursor-pointer"
-                      >
-                        <img src={plus_img} alt="" />
-                      </button>
-                      <p className=" text-[#5357B6] text=[16px] font-[400]">
-                        {reply.likes}
-                      </p>
-                      <button
-                        onClick={() => MinusFunc(key, replyindex)}
-                        className="cursor-pointer"
-                      >
-                        <img src={minus_img} alt="" />
-                      </button>
-                    </div>
+                    <Likes_div
+                      func={() => PlusFunc(key, replyindex)}
+                      plus_img={plus_img}
+                      minus_img={minus_img}
+                      MinusFunc={() => MinusFunc(key, replyindex)}
+                      comment={reply}
+                    />
+
                     <div className=" w-full">
                       <div className="  flex justify-between items-center">
                         <div className=" flex gap-[16px]">
@@ -302,28 +254,15 @@ function Main() {
                             1 month ago
                           </p>
                         </div>
-                        <div className="flex gap-[24px]">
-                          <button
-                            onClick={() => DeleteReply(key, replyindex)}
-                            className=" flex justify-center items-center gap-[8px] text-[#ED6368] text-[16px] font-[400] cursor-pointer"
-                          >
-                            <img src={remove_img} alt="" />
-                            Delete
-                          </button>
-                          <button
-                            onClick={() => ReplyEditClick(key, replyindex)}
-                            className="flex justify-center items-center gap-[8px] text-[#5357B6] text-[16px] font-[400px] cursor-pointer"
-                          >
-                            <img src={edit_img} alt="" /> Edit
-                          </button>
-                          <button
-                            onClick={() => ReplyFunc(key)}
-                            className="flex justify-center items-center gap-[8px] text-[#5357B6] text-[16px] font-[400px] cursor-pointer"
-                          >
-                            <img src={reply_img} alt="" />
-                            Reply
-                          </button>
-                        </div>
+                        <Buttons_div
+                          index={key}
+                          clickfunc={() => DeleteReply(key, replyindex)}
+                          remove_img={remove_img}
+                          editfunc={() => ReplyEditClick(key, replyindex)}
+                          edit_img={edit_img}
+                          reply_img={reply_img}
+                          replyfunc={() => ReplyFunc(key)}
+                        />
                       </div>
                       {reply.edit ? (
                         <div className="!mt-[20px] flex flex-col items-end w-[530px]">
@@ -357,58 +296,15 @@ function Main() {
             </div>
           ))}
         </div>
-        <form
-          onSubmit={SaveCommentsFunc}
-          className="bg-[#FFF] rounded-[8px] flex items-start gap-[17px] !p-[24px]"
-          action=""
-        >
-          <img src={profile_img} alt="" />
-          <textarea
-            onChange={TakeValue}
-            value={comment}
-            className="!px-[24px] !py-[12px]  outline-none w-[506px] h-[96px] flex border-solid border-[1px] border-[#E9EBF0] "
-            placeholder="Add a comment…"
-            type="text"
-          />
-          <button
-            type="submit"
-            className=" w-[104px] h-[48px] bg-[#5357B6] rounded-[8px]"
-          >
-            <p className="text-[#FFF] text-[16px] font-[400] cursor-pointer ">
-              SEND
-            </p>
-          </button>
-        </form>
+        <Form
+          SaveCommentsFunc={SaveCommentsFunc}
+          profile_img={profile_img}
+          TakeValue={TakeValue}
+          comment={comment}
+        />
       </div>
       {deleteclick && (
-        <div
-          onClick={ClickOnDelete}
-          className=" h-full w-full absolute bg-[#00000080] flex justify-center items-center opacity_div"
-        >
-          <div className=" justify-center gap-[20px] flex flex-col rounded-[8px]  w-[400px] h-[252px] bg-[#fff] !pl-[32px]">
-            <p className=" text-[24px] font-[400] text-[334253]">
-              Delete comment
-            </p>
-            <p className=" text-[16px] font-[400] leading-[24px] text-[#67727E]">
-              Are you sure you want to delete this <br /> comment? This will
-              remove the comment <br /> and can’t be undone.
-            </p>
-            <div className=" flex  gap-[14px]">
-              <button
-                className=" cursor-pointer w-[160px] h-[48px] font-[400] text-[16px] text-[#fff] bg-[#67727E] rounded-[8px]"
-                onClick={ClickOnDelete}
-              >
-                NO, CANCEL
-              </button>
-              <button
-                className=" cursor-pointer w-[160px] h-[48px] font-[400] text-[16px] text-[#fff] bg-[#ED6368] rounded-[8px]"
-                onClick={DeleteComment}
-              >
-                YES, DELETE
-              </button>
-            </div>
-          </div>
-        </div>
+        <Delete ClickOnDelete={ClickOnDelete} DeleteComment={DeleteComment} />
       )}
     </>
   );
