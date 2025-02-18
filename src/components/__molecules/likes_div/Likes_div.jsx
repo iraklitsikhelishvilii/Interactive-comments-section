@@ -1,8 +1,15 @@
 import React from "react";
 
-function Likes_div({ func, MinusFunc, plus_img, minus_img, comment }) {
+function Likes_div({
+  func,
+  MinusFunc,
+  plus_img,
+  minus_img,
+  comment,
+  className,
+}) {
   return (
-    <div className=" gap-[20px] justify-center items-center flex flex-col min-w-[48px] h-[100px] bg-[#F5F6FA] rounded-[10px]">
+    <div className={className}>
       <button onClick={func} className="cursor-pointer">
         <img src={plus_img} alt="" />
       </button>

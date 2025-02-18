@@ -10,7 +10,7 @@ function Buttons_div({
   replyfunc,
 }) {
   return (
-    <div className="flex gap-[24px]">
+    <div className="flex gap-[24px]   ">
       {index != 0 && (
         <button
           className=" flex justify-center items-center gap-[8px] text-[#ED6368] text-[16px] font-[400] cursor-pointer"

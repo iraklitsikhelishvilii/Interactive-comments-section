@@ -162,14 +162,19 @@ function Main() {
         <div className=" flex flex-col items-center overflow-y-auto overflow-x-hidden h-[600px] gap-[20px]">
           {savecomments.map((comment, key) => (
             <div className=" w-full flex flex-col" key={key}>
-              <div className=" flex bg-[#fff] w-full max-w-[730px] gap-[24px] items-start !p-[24px]">
-                <Likes_div
-                  func={() => PlusFunc(key)}
-                  plus_img={plus_img}
-                  minus_img={minus_img}
-                  MinusFunc={() => MinusFunc(key)}
-                  comment={comment}
-                />
+              <div className=" flex bg-[#fff] w-full max-w-[730px] gap-[24px] items-start !p-[24px] max-[590px]:flex-col">
+                <div className="max-[590px]:hidden">
+                  <Likes_div
+                    className={
+                      "gap-[20px] justify-center items-center flex flex-col min-w-[48px] h-[100px] bg-[#F5F6FA] rounded-[10px]"
+                    }
+                    func={() => PlusFunc(key)}
+                    plus_img={plus_img}
+                    minus_img={minus_img}
+                    MinusFunc={() => MinusFunc(key)}
+                    comment={comment}
+                  />
+                </div>
                 <div className=" w-full">
                   <div className="  flex justify-between items-center">
                     <div className=" flex gap-[16px]">
@@ -185,15 +190,17 @@ function Main() {
                         1 month ago
                       </p>
                     </div>
-                    <Buttons_div
-                      index={key}
-                      clickfunc={() => ClickOnDelete(key)}
-                      remove_img={remove_img}
-                      editfunc={() => EditClick(key)}
-                      edit_img={edit_img}
-                      reply_img={reply_img}
-                      replyfunc={() => ReplyFunc(key)}
-                    />
+                    <div className="max-[590px]:hidden">
+                      <Buttons_div
+                        index={key}
+                        clickfunc={() => ClickOnDelete(key)}
+                        remove_img={remove_img}
+                        editfunc={() => EditClick(key)}
+                        edit_img={edit_img}
+                        reply_img={reply_img}
+                        replyfunc={() => ReplyFunc(key)}
+                      />
+                    </div>
                   </div>
                   {comment.edit ? (
                     <div className="!mt-[20px] flex flex-col items-end w-[530px] ">
@@ -216,6 +223,27 @@ function Main() {
                       </p>
                     </div>
                   )}
+                </div>
+                <div className="min-[590px]:hidden flex w-[100%] justify-between">
+                  <Likes_div
+                    className={
+                      " flex w-[100px] h-[40px] rounded-[10px] bg-[#F5F6FA] items-center justify-between !px-[15px]"
+                    }
+                    func={() => PlusFunc(key)}
+                    plus_img={plus_img}
+                    minus_img={minus_img}
+                    MinusFunc={() => MinusFunc(key)}
+                    comment={comment}
+                  />
+                  <Buttons_div
+                    index={key}
+                    clickfunc={() => ClickOnDelete(key)}
+                    remove_img={remove_img}
+                    editfunc={() => EditClick(key)}
+                    edit_img={edit_img}
+                    reply_img={reply_img}
+                    replyfunc={() => ReplyFunc(key)}
+                  />
                 </div>
               </div>
               {comment.reply && (
@@ -255,7 +283,6 @@ function Main() {
                           </p>
                         </div>
                         <Buttons_div
-                          index={key}
                           clickfunc={() => DeleteReply(key, replyindex)}
                           remove_img={remove_img}
                           editfunc={() => ReplyEditClick(key, replyindex)}
