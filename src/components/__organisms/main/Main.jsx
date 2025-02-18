@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import profile_img from "../../../assets/images/Oval.svg";
 import remove_img from "../../../assets/images/trash.svg";
 import edit_img from "../../../assets/images/pencil.svg";
@@ -8,10 +8,29 @@ import minus_img from "../../../assets/images/-.svg";
 function Main() {
   const [comment, setcomment] = useState("");
   const [replyvalue, setreplyvalue] = useState("");
-  const [savecomments, setsavecomments] = useState([]);
+  const [savecomments, setsavecomments] = useState(() => {
+    const savedComments = localStorage.getItem("comments");
+    return savedComments
+      ? JSON.parse(savedComments)
+      : [
+          {
+            comment:
+              "Impressive! Though it seems the drag feature could be improved. But overall it looks incredible. You’ve nailed the design and the responsiveness at various breakpoints works really well.",
+            name: "amyrobson",
+            likes: 4,
+            reply: false,
+            replytxt: [],
+            replied: false,
+            edit: false,
+          },
+        ];
+  });
   const [deleteclick, setdeleteclick] = useState(false);
   const [deleteindex, setdeleteindex] = useState(null);
-  
+  const [editReplyText, setEditReplyText] = useState("");
+  useEffect(() => {
+    localStorage.setItem("comments", JSON.stringify(savecomments));
+  }, [savecomments]);
   const TakeValue = (e) => {
     setcomment(e.target.value);
   };
@@ -23,10 +42,12 @@ function Main() {
         ...savecomments,
         {
           comment: comment,
+          name: "Irakli",
           likes: 0,
           reply: false,
           replytxt: [],
           replied: false,
+          edit: false,
         },
       ]);
       setcomment("");
@@ -60,13 +81,9 @@ function Main() {
   const MinusFunc = (commentIndex, replyIndex = null) => {
     const updatedComments = [...savecomments];
     if (replyIndex === null) {
-      if (updatedComments[commentIndex].likes > 0) {
-        updatedComments[commentIndex].likes -= 1;
-      }
+      updatedComments[commentIndex].likes -= 1;
     } else {
-      if (updatedComments[commentIndex].replytxt[replyIndex].likes > 0) {
-        updatedComments[commentIndex].replytxt[replyIndex].likes -= 1;
-      }
+      updatedComments[commentIndex].replytxt[replyIndex].likes -= 1;
     }
     setsavecomments(updatedComments);
   };
@@ -88,6 +105,8 @@ function Main() {
       updatedComments[key].replytxt.push({
         text: replyvalue,
         likes: 0,
+        edit: false,
+        name: "Irakli",
       });
       updatedComments[key].reply = false;
       setsavecomments(updatedComments);
@@ -100,6 +119,38 @@ function Main() {
     updatedComments[key].replytxt.splice(replyindex, 1);
     setsavecomments(updatedComments);
   };
+  const EditClick = (key) => {
+    if (key !== 0) {
+      const updatedcomments = [...savecomments];
+      updatedcomments[key].edit = true;
+      setsavecomments(updatedcomments);
+    }
+  };
+  const UpdateEditedComment = (e, key) => {
+    const updatedComments = [...savecomments];
+    updatedComments[key].comment = e.target.value;
+    setsavecomments(updatedComments);
+  };
+  const SaveEditedComment = (key) => {
+    const updatedComments = [...savecomments];
+    updatedComments[key].edit = false;
+    setsavecomments(updatedComments);
+  };
+  const ReplyEditClick = (commentIndex, replyIndex) => {
+    const updatedComments = [...savecomments];
+    updatedComments[commentIndex].replytxt[replyIndex].edit = true;
+    setEditReplyText(updatedComments[commentIndex].replytxt[replyIndex].text);
+    setsavecomments(updatedComments);
+  };
+  const UpdateEditedReply = (e) => {
+    setEditReplyText(e.target.value);
+  };
+  const SaveEditedReply = (commentIndex, replyIndex) => {
+    const updatedComments = [...savecomments];
+    updatedComments[commentIndex].replytxt[replyIndex].text = editReplyText;
+    updatedComments[commentIndex].replytxt[replyIndex].edit = false;
+    setsavecomments(updatedComments);
+  };
 
   return (
     <>
@@ -107,8 +158,8 @@ function Main() {
         <div className=" flex flex-col items-center overflow-y-auto overflow-x-hidden h-[600px] gap-[20px]">
           {savecomments.map((comment, key) => (
             <div className=" w-full flex flex-col" key={key}>
-              <div className=" flex bg-[#fff] w-full max-w-[730px] gap-[24px] items-start comments_div">
-                <div className=" gap-[20px] justify-center items-center flex flex-col w-[48px] h-[100px] bg-[#F5F6FA] rounded-[10px]">
+              <div className=" flex bg-[#fff] w-full max-w-[730px] gap-[24px] items-start !p-[24px]">
+                <div className=" gap-[20px] justify-center items-center flex flex-col min-w-[48px] h-[100px] bg-[#F5F6FA] rounded-[10px]">
                   <button
                     onClick={() => PlusFunc(key)}
                     className="cursor-pointer"
@@ -134,23 +185,30 @@ function Main() {
                         alt=""
                       />
                       <p className=" text-[#334253] text-[16px] font-[400]">
-                        amyrobson
+                        {comment.name}
                       </p>
                       <p className=" text-[#67727E] text-[16px] font-[400] ">
                         1 month ago
                       </p>
                     </div>
                     <div className="flex gap-[24px]">
-                      <button
-                        className=" flex justify-center items-center gap-[8px] text-[#ED6368] text-[16px] font-[400] cursor-pointer"
-                        onClick={() => ClickOnDelete(key)}
-                      >
-                        <img src={remove_img} alt="" />
-                        Delete
-                      </button>
-                      <button className="flex justify-center items-center gap-[8px] text-[#5357B6] text-[16px] font-[400px] cursor-pointer">
-                        <img src={edit_img} alt="" /> Edit
-                      </button>
+                      {key != 0 && (
+                        <button
+                          className=" flex justify-center items-center gap-[8px] text-[#ED6368] text-[16px] font-[400] cursor-pointer"
+                          onClick={() => ClickOnDelete(key)}
+                        >
+                          <img src={remove_img} alt="" />
+                          Delete
+                        </button>
+                      )}
+                      {key != 0 && (
+                        <button
+                          onClick={() => EditClick(key)}
+                          className="flex justify-center items-center gap-[8px] text-[#5357B6] text-[16px] font-[400px] cursor-pointer"
+                        >
+                          <img src={edit_img} alt="" /> Edit
+                        </button>
+                      )}
                       <button
                         onClick={() => ReplyFunc(key)}
                         className="flex justify-center items-center gap-[8px] text-[#5357B6] text-[16px] font-[400px] cursor-pointer"
@@ -160,23 +218,39 @@ function Main() {
                       </button>
                     </div>
                   </div>
-                  <div className=" overflow-hidden max-w-[600px] h-auto">
-                    <p className=" text-[#67727E] text-[16px] font-[400] leading-[24px] comments_p">
-                      {comment.comment}
-                    </p>
-                  </div>
+                  {comment.edit ? (
+                    <div className="!mt-[20px] flex flex-col items-end w-[530px] ">
+                      <textarea
+                        className="!px-[24px] !py-[12px] w-[100%]"
+                        value={comment.comment}
+                        onChange={(e) => UpdateEditedComment(e, key)}
+                      />
+                      <button
+                        className=" w-[108px] h-[48px] bg-[#5357B6] rounded-[8px] text-[16px] font-[400] text-[#fff] !mt-[12px]"
+                        onClick={() => SaveEditedComment(key)}
+                      >
+                        UPDATE
+                      </button>
+                    </div>
+                  ) : (
+                    <div className=" overflow-hidden max-w-[600px] h-auto">
+                      <p className=" text-[#67727E] text-[16px] font-[400] leading-[24px] !mt-[15px]">
+                        {comment.comment}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
               {comment.reply && (
                 <form
                   onClick={(e) => SaveReplyValue(e, key)}
-                  className="bg-[#FFF] rounded-[8px] flex items-start gap-[17px]  reply_form"
+                  className="bg-[#FFF] rounded-[8px] !p-[24px] flex items-start gap-[17px]  !mt-[20px]"
                   action=""
                 >
                   <img src={profile_img} alt="" />
-                  <input
+                  <textarea
                     onChange={TakeReplyValue}
-                    className="  outline-none w-[506px] h-[96px] flex border-solid border-[1px] border-[#E9EBF0] "
+                    className=" !px-[24px] !py-[12px]  outline-none w-[506px] h-[96px] flex border-solid border-[1px] border-[#E9EBF0] "
                     placeholder="Add a reply..."
                     type="text"
                   />
@@ -194,9 +268,9 @@ function Main() {
                 comment.replytxt.map((reply, replyindex) => (
                   <div
                     key={replyindex}
-                    className=" flex bg-[#fff] w-full max-w-[640px] self-end gap-[24px] items-start comments_div reply_div"
+                    className=" flex bg-[#fff] w-full max-w-[640px] self-end gap-[24px] items-start !p-[24px] !mt-[20px]"
                   >
-                    <div className=" gap-[20px] justify-center items-center flex flex-col w-[48px] h-[100px] bg-[#F5F6FA] rounded-[10px]">
+                    <div className=" gap-[20px] justify-center items-center flex flex-col min-w-[48px] h-[100px] bg-[#F5F6FA] rounded-[10px]">
                       <button
                         onClick={() => PlusFunc(key, replyindex)}
                         className="cursor-pointer"
@@ -222,7 +296,7 @@ function Main() {
                             alt=""
                           />
                           <p className=" text-[#334253] text-[16px] font-[400]">
-                            amyrobson
+                            {reply.name}
                           </p>
                           <p className=" text-[#67727E] text-[16px] font-[400] ">
                             1 month ago
@@ -236,16 +310,47 @@ function Main() {
                             <img src={remove_img} alt="" />
                             Delete
                           </button>
-                          <button className="flex justify-center items-center gap-[8px] text-[#5357B6] text-[16px] font-[400px] cursor-pointer">
+                          <button
+                            onClick={() => ReplyEditClick(key, replyindex)}
+                            className="flex justify-center items-center gap-[8px] text-[#5357B6] text-[16px] font-[400px] cursor-pointer"
+                          >
                             <img src={edit_img} alt="" /> Edit
+                          </button>
+                          <button
+                            onClick={() => ReplyFunc(key)}
+                            className="flex justify-center items-center gap-[8px] text-[#5357B6] text-[16px] font-[400px] cursor-pointer"
+                          >
+                            <img src={reply_img} alt="" />
+                            Reply
                           </button>
                         </div>
                       </div>
-                      <div className=" overflow-hidden max-w-[600px] h-auto">
-                        <p className=" text-[#67727E] text-[16px] font-[400] leading-[24px] comments_p">
-                          {reply.text}
-                        </p>
-                      </div>
+                      {reply.edit ? (
+                        <div className="!mt-[20px] flex flex-col items-end w-[530px]">
+                          <textarea
+                            className="!px-[24px] !py-[12px] w-[100%]"
+                            value={editReplyText}
+                            onChange={UpdateEditedReply}
+                          />
+                          <button
+                            className="w-[108px] h-[48px] bg-[#5357B6] rounded-[8px] text-[16px] font-[400] text-[#fff] !mt-[12px]"
+                            onClick={() => SaveEditedReply(key, replyindex)}
+                          >
+                            UPDATE
+                          </button>
+                        </div>
+                      ) : (
+                        <div className=" overflow-hidden max-w-[600px] h-auto">
+                          <p className=" text-[#67727E] text-[16px] font-[400] leading-[24px] !mt-[15px]">
+                            <span className="text-[16px] font-[400] text-[#5357B6]">
+                              {comment.name === "Irakli"
+                                ? "@Irakli"
+                                : "@amyrobson"}
+                            </span>
+                            <span className="!ml-[4px]">{reply.text}</span>
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -254,14 +359,14 @@ function Main() {
         </div>
         <form
           onSubmit={SaveCommentsFunc}
-          className="bg-[#FFF] rounded-[8px] flex items-start gap-[17px] "
+          className="bg-[#FFF] rounded-[8px] flex items-start gap-[17px] !p-[24px]"
           action=""
         >
           <img src={profile_img} alt="" />
-          <input
+          <textarea
             onChange={TakeValue}
             value={comment}
-            className="  outline-none w-[506px] h-[96px] flex border-solid border-[1px] border-[#E9EBF0] "
+            className="!px-[24px] !py-[12px]  outline-none w-[506px] h-[96px] flex border-solid border-[1px] border-[#E9EBF0] "
             placeholder="Add a comment…"
             type="text"
           />
@@ -278,9 +383,9 @@ function Main() {
       {deleteclick && (
         <div
           onClick={ClickOnDelete}
-          className=" h-full w-full absolute bg-[#000] flex justify-center items-center opacity_div"
+          className=" h-full w-full absolute bg-[#00000080] flex justify-center items-center opacity_div"
         >
-          <div className=" justify-center gap-[20px] flex flex-col rounded-[8px]  w-[400px] h-[252px] bg-[#fff] delete_div">
+          <div className=" justify-center gap-[20px] flex flex-col rounded-[8px]  w-[400px] h-[252px] bg-[#fff] !pl-[32px]">
             <p className=" text-[24px] font-[400] text-[334253]">
               Delete comment
             </p>
